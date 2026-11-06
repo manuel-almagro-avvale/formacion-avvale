@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsoap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:tns="http://avvale.com/MiServicioWeb" targetNamespace="http://avvale.com/MiServicioWeb">
+  <wsdl:types>
+    <xsd:schema targetNamespace="http://avvale.com/MiServicioWeb">
+      <xsd:element name="Z_Operacion_Request">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="Usuario">
+              <xsd:complexType>
+                <xsd:sequence>
+                  <xsd:element name="Nombre" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+                  <xsd:element name="Apellido1" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+                  <xsd:element name="Apellido2" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+                </xsd:sequence>
+              </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="NIF_SinLetra" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="Z_Operacion_Response">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="Mensaje" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+            <xsd:element name="NIF_ConLetra" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    <xsd:element name="Z_Operacion_ResponseError">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="MensajeError" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+            <xsd:element name="TipologiaError" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="Z_MensajeRequest">
+    <wsdl:part name="parameters" element="tns:Z_Operacion_Request"/>
+  </wsdl:message>
+  <wsdl:message name="Z_MensajeResponse">
+    <wsdl:part name="parameters" element="tns:Z_Operacion_Response"/>
+  </wsdl:message>
+   <wsdl:message name="Z_MensajeResponseError">
+    <wsdl:part name="parameters" element="tns:Z_Operacion_ResponseError"/>
+  </wsdl:message>
+  <wsdl:portType name="Port_RequestResponse">
+    <wsdl:operation name="Z_OperacionRequest">
+      <wsdl:input message="tns:Z_MensajeRequest"/>
+      <wsdl:output message="tns:Z_MensajeResponse"/>
+      <wsdl:output message="tns:Z_MensajeResponseError"/>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SOAPBinding_Webservice" type="tns:Port_RequestResponse">
+    <wsoap12:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="Z_OperacionRequest">
+      <wsdl:input>
+        <wsoap12:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output>
+        <wsoap12:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Webservice_MiServicioWeb">
+    <wsdl:port name="Port_RequestResponse" binding="tns:SOAPBinding_Webservice">
+      <soap:address location="http://avvale.com/MiServicioWeb"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
+
