@@ -1,0 +1,194 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Spanish NIF Validator API",
+    "version": "1.0.0",
+    "description": "API used to validate Spanish DNIs (NIF).\n\nWorkflow:\n1. Retrieve a CSRF token using a GET request with header `x-csrf-token: fetch`.\n2. Use the returned token in the header `x-csrf-token` when performing the POST validation request.\n"
+  },
+  "servers": [
+    {
+      "url": "{{server}}",
+      "description": "Target server"
+    }
+  ],
+  "paths": {
+    "/http/POC/API/NIF_Validator": {
+      "get": {
+        "summary": "Fetch CSRF Token",
+        "description": "Retrieves a CSRF token required for the POST request.  \nThe request must include the header `x-csrf-token: fetch`.  \nThe response body is empty, and the generated token is returned in the `x-csrf-token` response header.\n",
+        "operationId": "fetchCsrfToken",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "fetch"
+            },
+            "description": "Must be set to `fetch` to request a CSRF token."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CSRF token returned in header",
+            "headers": {
+              "x-csrf-token": {
+                "description": "CSRF token to be used in the POST request.",
+                "schema": {
+                  "type": "string",
+                  "example": "abc123csrfToken"
+                }
+              }
+            },
+            "content": {}
+          }
+        }
+      },
+      "post": {
+        "summary": "Validate Spanish DNI",
+        "description": "Validates a Spanish DNI number and generates the corresponding NIF with the correct control letter.\n\nRequires a CSRF token obtained from the GET request.\n",
+        "operationId": "validateNIF",
+        "parameters": [
+          {
+            "name": "x-csrf-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "CSRF token retrieved from the GET request."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NIFValidationRequest"
+              },
+              "examples": {
+                "example1": {
+                  "summary": "Example request",
+                  "value": {
+                    "Usuario": {
+                      "Nombre": "Ana",
+                      "Apellido1": "Tomía",
+                      "Apellido2": "Pescuezo"
+                    },
+                    "NIF_SinLetra": "87654321"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful validation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NIFValidationResponse"
+                },
+                "examples": {
+                  "example1": {
+                    "summary": "Example response",
+                    "value": {
+                      "Mensaje": "El usuario Ana Tomía Pescuezo ha sido correctamente validado.",
+                      "NIF_ConLetra": "87654321X"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                },
+                "examples": {
+                  "invalidRequest": {
+                    "value": {
+                      "error": "Invalid request payload"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "NIFValidationRequest": {
+        "type": "object",
+        "required": [
+          "Usuario",
+          "NIF_SinLetra"
+        ],
+        "properties": {
+          "Usuario": {
+            "$ref": "#/components/schemas/Usuario"
+          },
+          "NIF_SinLetra": {
+            "type": "string",
+            "description": "DNI number without the control letter.",
+            "example": "87654321"
+          }
+        }
+      },
+      "Usuario": {
+        "type": "object",
+        "required": [
+          "Nombre",
+          "Apellido1",
+          "Apellido2"
+        ],
+        "properties": {
+          "Nombre": {
+            "type": "string",
+            "example": "Ana"
+          },
+          "Apellido1": {
+            "type": "string",
+            "example": "Tomía"
+          },
+          "Apellido2": {
+            "type": "string",
+            "example": "Pescuezo"
+          }
+        }
+      },
+      "NIFValidationResponse": {
+        "type": "object",
+        "properties": {
+          "Mensaje": {
+            "type": "string",
+            "description": "Validation result message.",
+            "example": "El usuario Ana Tomía Pescuezo ha sido correctamente validado."
+          },
+          "NIF_ConLetra": {
+            "type": "string",
+            "description": "DNI with the calculated control letter.",
+            "example": "87654321X"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Invalid request payload"
+          }
+        }
+      }
+    }
+  }
+}
